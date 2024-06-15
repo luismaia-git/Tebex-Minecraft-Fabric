@@ -22,6 +22,7 @@ import net.minecraft.util.Identifier;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BuyGUI {
@@ -82,38 +83,32 @@ public class BuyGUI {
 
         if (category instanceof Category cat) {
             if (cat.getSubCategories() != null) {
-                cat.getSubCategories().forEach(subCategory -> subListingGui.addSlot(getCategoryItemBuilder(subCategory).setCallback((index, clickType, actionType) -> {
-                    openCategoryMenu(player, subCategory);
-                })));
+                cat.getSubCategories().forEach(subCategory -> subListingGui.addSlot(getCategoryItemBuilder(subCategory).setCallback((index, clickType, actionType) -> openCategoryMenu(player, subCategory))));
 
                 subListingGui.setSlot((rows*9) - 5, getBackItemBuilder()
-                        .setCallback((index, clickType, actionType) -> {
-                            open(player);
-                        })
+                        .setCallback((index, clickType, actionType) -> open(player))
                 );
             }
-        } else if (category instanceof SubCategory) {
-            SubCategory subCategory = (SubCategory) category;
+        } else if (category instanceof SubCategory subCategory) {
 
             subListingGui.setTitle(Text.of(convertToLegacyString(config.getString("gui.menu.sub-category.title"))
                     .replace("%category%", subCategory.getParent().getName())
                     .replace("%sub_category%", category.getName())));
 
             subListingGui.setSlot((rows*9) - 5, getBackItemBuilder()
-                    .setCallback((index, clickType, actionType) -> {
-                        openCategoryMenu(player, subCategory.getParent());
-                    })
+                    .setCallback((index, clickType, actionType) -> openCategoryMenu(player, subCategory.getParent()))
             );
         }
 
-        category.getPackages().forEach(categoryPackage -> subListingGui.addSlot(getPackageItemBuilder(categoryPackage).setCallback((index, clickType, actionType) -> {
+        category.getPackages().forEach(categoryPackage -> subListingGui.addSlot(Objects.requireNonNull(getPackageItemBuilder(categoryPackage)).setCallback((index, clickType, actionType) -> {
             player.closeHandledScreen();
 
             // Create Checkout Url
             platform.getSDK().createCheckoutUrl(categoryPackage.getId(), player.getName().getString()).thenAccept(checkout -> {
                 player.sendMessage(Text.of("§aYou can checkout here: "), false);
-                player.sendMessage(MutableText.of((TextContent) Text.of("§a"+checkout.getUrl())).setStyle(Style.EMPTY.withClickEvent(
+                player.sendMessage(Text.literal("§a"+checkout.getUrl()).setStyle(Style.EMPTY.withClickEvent(
                         new ClickEvent(ClickEvent.Action.OPEN_URL, checkout.getUrl()))), false);
+
             }).exceptionally(ex -> {
                 player.sendMessage(Text.of("§cFailed to create checkout URL. Please contact an administrator."), false);
                 ex.printStackTrace();
@@ -134,8 +129,8 @@ public class BuyGUI {
         String name = section.getString("name");
         List<String> lore = section.getStringList("lore");
 
-        MutableText guiName = MutableText.of((TextContent) Text.of(convertToLegacyString(name != null ? handlePlaceholders(category, name) : category.getName()))).setStyle(Style.EMPTY.withItalic(true));
-        List<Text> guiLore = lore.stream().map(line -> MutableText.of((TextContent) Text.of(convertToLegacyString(handlePlaceholders(category, line)))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList());
+        Text guiName = Text.literal(convertToLegacyString(name != null ? handlePlaceholders(category, name) : category.getName())).setStyle(Style.EMPTY.withItalic(true));
+        List<Text> guiLore = lore.stream().map(line -> Text.literal(convertToLegacyString(handlePlaceholders(category, line))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList());
 
         return new GuiElementBuilder(material.asItem() != null ? material : Items.BOOK)
                 .setName(guiName)
@@ -160,9 +155,8 @@ public class BuyGUI {
         List<String> lore = section.getStringList("lore");
 
 
-        MutableText guiName = MutableText.of((TextContent) Text.of(convertToLegacyString(name != null ? handlePlaceholders(categoryPackage, name) : categoryPackage.getName()))).setStyle(Style.EMPTY.withItalic(true));
-        List<Text> guiLore = lore.stream().map(line -> MutableText.of((TextContent) Text.of(convertToLegacyString(handlePlaceholders(categoryPackage, line)))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList());
-
+        MutableText guiName = Text.literal((convertToLegacyString(name != null ? handlePlaceholders(categoryPackage, name) : categoryPackage.getName()))).setStyle(Style.EMPTY.withItalic(true));
+        List<Text> guiLore = lore.stream().map(line -> Text.literal(convertToLegacyString(handlePlaceholders(categoryPackage, line))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList());
         GuiElementBuilder guiElementBuilder = new GuiElementBuilder(material.asItem() != null ? material : Items.BOOK)
                 .setName(guiName)
                 .setLore(guiLore)
@@ -187,8 +181,8 @@ public class BuyGUI {
         List<String> lore = section.getStringList("lore");
 
         return new GuiElementBuilder(material.asItem() != null ? material : Items.BOOK)
-                .setName((MutableText)Text.of(convertToLegacyString(name != null ? name : "§fBack")))
-                .setLore(lore.stream().map(line -> ((MutableText)(Text.of(convertToLegacyString(line)))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList()))
+                .setName(Text.literal(convertToLegacyString(name != null ? name : "§fBack")))
+                .setLore(lore.stream().map(line -> (Text.literal(convertToLegacyString(line))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList()))
                 .hideFlag(ItemStack.TooltipSection.ENCHANTMENTS)
                 .hideFlag(ItemStack.TooltipSection.UNBREAKABLE)
                 .hideFlag(ItemStack.TooltipSection.ADDITIONAL);

@@ -1,5 +1,6 @@
 package io.tebex.plugin.command;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import io.tebex.plugin.TebexPlugin;
 import io.tebex.plugin.gui.BuyGUI;
@@ -15,14 +16,14 @@ public class BuyCommand {
 
     public int execute(CommandContext<ServerCommandSource> context) {
         final ServerCommandSource source = context.getSource();
-
-        try {
-            ServerPlayerEntity player = source.getPlayer();
-            new BuyGUI(plugin).open(player);
-        } catch (Exception e) {
+        if (!source.isExecutedByPlayer()) {
             source.sendMessage(Text.of("§b[Tebex] §7You must be a player to run this command!"));
+            return Command.SINGLE_SUCCESS;
         }
 
-        return 1;
+        ServerPlayerEntity player = source.getPlayer();
+        new BuyGUI(plugin).open(player);
+
+        return Command.SINGLE_SUCCESS;
     }
 }
