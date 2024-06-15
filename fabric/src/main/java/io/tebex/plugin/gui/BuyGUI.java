@@ -112,7 +112,7 @@ public class BuyGUI {
             // Create Checkout Url
             platform.getSDK().createCheckoutUrl(categoryPackage.getId(), player.getName().getString()).thenAccept(checkout -> {
                 player.sendMessage(Text.of("§aYou can checkout here: "), false);
-                player.sendMessage(MutableText.of(PlainTextContent.of("§a"+checkout.getUrl())).setStyle(Style.EMPTY.withClickEvent(
+                player.sendMessage(MutableText.of((TextContent) Text.of("§a"+checkout.getUrl())).setStyle(Style.EMPTY.withClickEvent(
                         new ClickEvent(ClickEvent.Action.OPEN_URL, checkout.getUrl()))), false);
             }).exceptionally(ex -> {
                 player.sendMessage(Text.of("§cFailed to create checkout URL. Please contact an administrator."), false);
@@ -134,8 +134,8 @@ public class BuyGUI {
         String name = section.getString("name");
         List<String> lore = section.getStringList("lore");
 
-        MutableText guiName = MutableText.of(PlainTextContent.of(convertToLegacyString(name != null ? handlePlaceholders(category, name) : category.getName()))).setStyle(Style.EMPTY.withItalic(true));
-        List<Text> guiLore = lore.stream().map(line -> MutableText.of(PlainTextContent.of(convertToLegacyString(handlePlaceholders(category, line)))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList());
+        MutableText guiName = MutableText.of((TextContent) Text.of(convertToLegacyString(name != null ? handlePlaceholders(category, name) : category.getName()))).setStyle(Style.EMPTY.withItalic(true));
+        List<Text> guiLore = lore.stream().map(line -> MutableText.of((TextContent) Text.of(convertToLegacyString(handlePlaceholders(category, line)))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList());
 
         return new GuiElementBuilder(material.asItem() != null ? material : Items.BOOK)
                 .setName(guiName)
@@ -160,8 +160,8 @@ public class BuyGUI {
         List<String> lore = section.getStringList("lore");
 
 
-        MutableText guiName = MutableText.of(PlainTextContent.of(convertToLegacyString(name != null ? handlePlaceholders(categoryPackage, name) : categoryPackage.getName()))).setStyle(Style.EMPTY.withItalic(true));
-        List<Text> guiLore = lore.stream().map(line -> MutableText.of(PlainTextContent.of(convertToLegacyString(handlePlaceholders(categoryPackage, line)))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList());
+        MutableText guiName = MutableText.of((TextContent) Text.of(convertToLegacyString(name != null ? handlePlaceholders(categoryPackage, name) : categoryPackage.getName()))).setStyle(Style.EMPTY.withItalic(true));
+        List<Text> guiLore = lore.stream().map(line -> MutableText.of((TextContent) Text.of(convertToLegacyString(handlePlaceholders(categoryPackage, line)))).setStyle(Style.EMPTY.withItalic(true))).collect(Collectors.toList());
 
         GuiElementBuilder guiElementBuilder = new GuiElementBuilder(material.asItem() != null ? material : Items.BOOK)
                 .setName(guiName)

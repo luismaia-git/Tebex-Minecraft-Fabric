@@ -2,6 +2,7 @@ package io.tebex.plugin;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.brigadier.ParseResults;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import io.tebex.plugin.event.JoinListener;
 import io.tebex.plugin.manager.CommandManager;
@@ -21,6 +22,7 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
 import org.apache.logging.log4j.LogManager;
@@ -203,7 +205,9 @@ public class TebexPlugin implements Platform, DedicatedServerModInitializer {
 
     @Override
     public void dispatchCommand(String command) {
-        server.getCommandManager().execute(server.getCommandSource().getDispatcher().parse(command, server.getCommandSource()), command);
+        ServerCommandSource source = server.getCommandSource();
+        ParseResults<ServerCommandSource> parseResults = server.getCommandManager().getDispatcher().parse(command, source);
+        server.getCommandManager().execute(parseResults, command);
     }
 
     @Override
